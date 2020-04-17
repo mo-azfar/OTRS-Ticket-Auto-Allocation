@@ -11,6 +11,20 @@
     <Filelist>
         <File Permission="660" Location="Custom/Kernel/System/Ticket/Event/TicketAutoAllocation.pm"/>
     </Filelist>
+    <CodeInstall><![CDATA[
+$Kernel::OM->Get('Kernel::System::GenericAgent')->JobAdd(
+        Name => 'ZZZTicket AutoAllocation',
+        Data => {
+            'EventValues' => [
+                           'TicketCreate'
+                         ],
+			'TicketNumber' => '*',
+            'NewModule' => 'Kernel::System::Ticket::Event::TicketAutoAllocation',
+            'Valid' => 1,
+        },
+        UserID => 1,
+    );
+]]></CodeInstall>
     <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
        <br/><br/>
        <h3 ><strong>README</strong></h3>
