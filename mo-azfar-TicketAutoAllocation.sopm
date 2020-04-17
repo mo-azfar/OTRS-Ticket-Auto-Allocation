@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<otrs_package version="1.0">
+    <Name>mo-azfar-TicketAutoAllocation</Name>
+    <Version>6.0.1</Version>
+    <ChangeLog Version="6.0.1" Date="2020-04-15 15:15:00 +0800">1st release.</ChangeLog>
+    <Framework>6.0.x</Framework>
+    <Vendor>mo-azfar</Vendor>
+    <URL>https://github.com/mo-azfar/OTRS-Ticket-Auto-Allocation</URL>
+    <License>GNU General Public License v3.0</License>
+    <Description Lang="en">Auto assigning incoming ticket (from email) to the agent.</Description>
+    <Filelist>
+        <File Permission="660" Location="Custom/Kernel/System/Ticket/Event/TicketAutoAllocation.pm"/>
+    </Filelist>
+    <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
+       <br/><br/>
+       <h3 ><strong>README</strong></h3>
+       <p><a href="https://github.com/mo-azfar/OTRS-Ticket-Auto-Allocation/blob/master/README.md" target="_blank">-- VISIT GITHUB --</a></p>
+    ]]></IntroInstall>
+</otrs_package>
