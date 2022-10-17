@@ -10,10 +10,10 @@
 1. Admin must create a new Generic Agent (GA) with option to execute custom module.  
 
 - Name: Anything
-- Event Based Execution 
-	-- Ticket::TicketCreate  
-- Select Tickets
-	-- Ticket#: *
-
-- Execute Custom Module 
+- Event Based Execution  
+	-- Ticket::TicketCreate    
+- Select Tickets  
+	-- Ticket#: *  
+  
+- Execute Custom Module  
 	-- Kernel::System::GenericAgent::TicketAutoAllocation  
