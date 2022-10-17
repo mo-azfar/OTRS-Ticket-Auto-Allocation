@@ -44,6 +44,7 @@ sub Run {
 
 	my $TicketID = $Param{TicketID};  
 	my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+	my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
 	my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 	
 	# get ticket details
