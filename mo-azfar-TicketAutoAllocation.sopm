@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>mo-azfar-TicketAutoAllocation</Name>
-    <Version>6.0.1</Version>
+    <Version>6.0.2</Version>
     <ChangeLog Version="6.0.1" Date="2020-04-15 15:15:00 +0800">1st release.</ChangeLog>
+	<ChangeLog Version="6.0.2" Date="2020-10-17 01:01:00 +0800">Include online user check. Change file directory. Update framework</ChangeLog>
     <Framework>6.0.x</Framework>
+	<Framework>6.1.x</Framework>
+	<Framework>6.2.x</Framework>
+	<Framework>6.3.x</Framework>
+	<Framework>6.4.x</Framework>
     <Vendor>mo-azfar</Vendor>
     <URL>https://github.com/mo-azfar/OTRS-Ticket-Auto-Allocation</URL>
     <License>GNU General Public License v3.0</License>
     <Description Lang="en">Auto assigning incoming ticket (from email) to the agent.</Description>
     <Filelist>
-        <File Permission="660" Location="Custom/Kernel/System/Ticket/Event/TicketAutoAllocation.pm"/>
+        <File Permission="660" Location="Custom/Kernel/System/GenericAgent/TicketAutoAllocation.pm"/>
     </Filelist>
     <CodeInstall><![CDATA[
 $Kernel::OM->Get('Kernel::System::GenericAgent')->JobAdd(
@@ -19,7 +24,7 @@ $Kernel::OM->Get('Kernel::System::GenericAgent')->JobAdd(
                            'TicketCreate'
                          ],
 			'TicketNumber' => '*',
-            'NewModule' => 'Kernel::System::Ticket::Event::TicketAutoAllocation',
+            'NewModule' => 'Kernel::System::GenericAgent::TicketAutoAllocation',
             'Valid' => 1,
         },
         UserID => 1,
