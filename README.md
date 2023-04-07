@@ -1,5 +1,5 @@
 # OTRS-Ticket-Auto-Allocation
-- Built for OTRS CE v 6.0.x / Znuny LTS / Znuny Features (Up to 6.4.x)
+- Built for OTRS CE v 6.0.x / Znuny LTS
 - OTRS / Znuny - Auto assigning incoming ticket (from email) to the agent.  
 
 		- Online Agent (based on session) with the less ticket ownership will get the ticket allocate to him / her.  
