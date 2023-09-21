@@ -1,5 +1,5 @@
 # OTRS-Ticket-Auto-Allocation
-- Built for OTRS CE v 6.0.x / Znuny LTS
+- Built for OTRS CE v 6.0.x / Znuny LTS / Znuny Features
 - OTRS / Znuny - Auto assigning incoming ticket (from email) to the agent.  
 
 		- Online Agent (based on session) with the less ticket ownership will get the ticket allocate to him / her.  
@@ -7,9 +7,9 @@
 		- Only work when ticket in State "new" || Lock status "unlock" || Current owner "root@localhost".  
 		
 		
-1. Admin must create a new Generic Agent (GA) with option to execute custom module.  
+1. .OPM will auto create Generic Agent to execute this module on ticket create. If not, create it manually.
 
-- Name: Anything
+- Name: ZZZTicket AutoAllocation
 - Event Based Execution  
 	-- Ticket::TicketCreate    
 - Select Tickets  
