@@ -35,6 +35,7 @@
 		Allocation => (Owner|Resposible) #allocate ticket to owner or responsible  
 		Online => (Yes|No) #allocate ticket to online agent only or all agent.
 
-2. IMPORTANT!!
+  
+2. IMPORTANT!!  
 
-If you are updating the addon, update the Generic Agent to match the structure above!.
+	If you are updating the addon, update the Generic Agent to match the structure above!.
