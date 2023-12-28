@@ -16,18 +16,18 @@
 		-- Ticket::TicketCreate    
 
 	- Select Tickets  
-		-- Ticket#: * 
-		-- State: new
-		-- Agent/Owner: Admin OTRS
-		-- Ticket unlock : unlock 
+		-- Ticket#: *   
+		-- State: new  
+		-- Agent/Owner: Admin OTRS  
+		-- Ticket unlock : unlock    
   
 	- Execute Custom Module  
-		-- Module
+		-- Module  
 			--- Kernel::System::GenericAgent::TicketAutoAllocation  
-		-- Param 1 key => value
-			--- Allocation => Owner
-		-- Param 2 key => value
-			--- Online => Yes
+		-- Param 1 key => value  
+			--- Allocation => Owner  
+		-- Param 2 key => value  
+			--- Online => Yes  
 
 
 Generic Agent Keys and Value
