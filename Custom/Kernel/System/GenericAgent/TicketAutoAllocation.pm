@@ -33,7 +33,7 @@ sub Run {
         },
     );
 	
-	# check needed param
+    #check ticket id
     if ( !$Param{TicketID} ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -42,6 +42,21 @@ sub Run {
         return;
     }
 
+    # check needed param
+    # Allocation = Owner | Responsible
+    # Online = Yes | No
+    for my $Needed ( qw( Allocation Online ) )
+	{
+        if ( !$Param{New}->{$Needed} ) 
+        {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Need Parameter $Needed and its value for this operation!",
+            );
+            return;
+        }
+	}
+	
 	my $TicketID = $Param{TicketID};  
 	my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 	my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
@@ -53,51 +68,90 @@ sub Run {
 		UserID   => 1,
 	);
 	
-	#stop if ticket currently NOT NEW, LOCKED, OR HAS AN OWNER
-	if ( $Ticket{State} ne "new" || $Ticket{Lock} ne "unlock" || $Ticket{OwnerID} ne 1 )
-	{
-		$LogObject->Log(
-			Priority => 'info',
-			Message  => "Not this ticket: $TicketID\n\n",
-		);
-		return;
-	}
-	
 	my $GroupID = $Kernel::OM->Get('Kernel::System::Queue')->GetQueueGroupID( QueueID => $Ticket{QueueID} );
 	
-	#get possible owner
+    my $AllocationType;
+    my $SearchParam;
+    my $HistoryName;
+    my $HistoryType;
+
+    if ( $Param{New}->{'Allocation'} eq 'Owner' )
+    {
+        $AllocationType = 'owner';
+        $SearchParam = 'OwnerIDs';
+        $HistoryName = 'Owner';
+        $HistoryType = 'OwnerUpdate';
+    }
+    elsif ( $Param{New}->{'Allocation'} eq 'Responsible' )
+    {
+        $AllocationType = 'rw';
+        $SearchParam = 'ResponsibleIDs';
+        $HistoryName = 'Responsible';
+        $HistoryType = 'ResponsibleUpdate';
+    }
+    else
+    {
+        $LogObject->Log(
+			Priority => 'error',
+			Message  => "Wrong Allocation value ($Param{New}->{'Allocation'}) on ticket: $TicketID\n\n",
+		);
+		return;
+    }
+
+	#get possible owner / responsible
 	my %Users = $Kernel::OM->Get('Kernel::System::Group')->PermissionGroupGet(
 		GroupID => $GroupID,
-		Type    => 'owner',
+		Type    => $AllocationType,
 	);
 	
-	#get online users
-	my $SessionMaxIdleTime = $Kernel::OM->Get('Kernel::Config')->Get('SessionMaxIdleTime');
-    my %Online   = ();
-    my @Sessions = $SessionObject->GetAllSessionIDs();
-	
-	for my $SessionID (@Sessions) {
-        my %Data = $SessionObject->GetSessionIDData(
-            SessionID => $SessionID,
-        );
-        if (
-            $Data{UserType} eq 'User'
-            && $Data{UserLastRequest}
-            && $Data{UserLastRequest} + $SessionMaxIdleTime
-            > $Kernel::OM->Create('Kernel::System::DateTime')->ToEpoch()
-            && $Data{UserFirstname}
-            && $Data{UserLastname}
-            )
+    my @common = ();
+
+    #check online user
+    if ( $Param{New}->{'Online'} eq 'Yes' )
+    {
+        my $SessionMaxIdleTime = $Kernel::OM->Get('Kernel::Config')->Get('SessionMaxIdleTime');
+        my %Online   = ();
+        my @Sessions = $SessionObject->GetAllSessionIDs();
+        
+        for my $SessionID (@Sessions) 
         {
-            $Online{ $Data{UserID} } = "$Data{UserFullname}";
+            my %Data = $SessionObject->GetSessionIDData(
+                SessionID => $SessionID,
+            );
+
+            if (
+                $Data{UserType} eq 'User'
+                && $Data{UserLastRequest}
+                && $Data{UserLastRequest} + $SessionMaxIdleTime
+                > $Kernel::OM->Create('Kernel::System::DateTime')->ToEpoch()
+                && $Data{UserFirstname}
+                && $Data{UserLastname}
+                )
+            {
+                $Online{ $Data{UserID} } = "$Data{UserFullname}";
+            }
+
+        }
+
+        #get intersection between group users and online
+	    foreach (keys %Users) {
+		    push(@common, $_) if exists $Online{$_};
         }
     }
-	
-	#get intersection between group users and online
-	my @common = ();
-	foreach (keys %Users) {
-		push(@common, $_) if exists $Online{$_};
-	}
+    elsif ( $Param{New}->{'Online'} eq 'No' ) 
+    {
+        foreach (keys %Users) {
+		    push(@common, $_);
+        }
+    }
+    else
+    {
+        $LogObject->Log(
+			Priority => 'error',
+			Message  => "Wrong Online value ($Param{New}->{'Online'}) on ticket: $TicketID\n\n",
+		);
+		return;
+    }
 	
 	#check workloads
 	my %Workloads;
@@ -152,7 +206,7 @@ sub Run {
 		my @TicketIDs = $TicketObject->TicketSearch(
 			Result => 'COUNT',
 			StateType    => ['open', 'new', 'pending reminder', 'pending auto'],
-			OwnerIDs => [$UserID],
+			$SearchParam => [$UserID],
 			UserID => 1,
 		);
 			
@@ -160,27 +214,45 @@ sub Run {
 		$Workloads{$UserID} = $TicketIDs[0];
 		
 	}
-	
+
 	use List::Util qw( min max );
 	my $min = min values %Workloads ;
 	
-	for my $OwnerID ( keys %Workloads ) 
+	for my $AllocationID ( keys %Workloads ) 
 	{
-		my $val = $Workloads{$OwnerID};
+		my $val = $Workloads{$AllocationID};
 		if ($val eq $min)
 		{
-			#assign ticket to this user id $_
-			my $SetOwner = $TicketObject->TicketOwnerSet(
-				TicketID  => $TicketID,
-				NewUserID => $OwnerID,
-				UserID    => 1,
-			);
+			my $SetAllocation;
+            if ( $Param{New}->{'Allocation'} eq 'Owner' )
+            {
+                #assign ticket owner to this user id $_
+                $SetAllocation = $TicketObject->TicketOwnerSet(
+                    TicketID  => $TicketID,
+                    NewUserID => $AllocationID,
+                    UserID    => 1,
+                );
+            }
+            elsif ( $Param{New}->{'Allocation'} eq 'Responsible' )
+            {
+                #assign ticket resposible to this user id $_
+                $SetAllocation = $TicketObject->TicketResponsibleSet(
+                    TicketID  => $TicketID,
+                    NewUserID => $AllocationID,
+                    UserID    => 1,
+                );
+            }
 			
-			if ($SetOwner eq 1)
+			if ( $SetAllocation )
 			{
-				my $Success = $TicketObject->HistoryAdd(
-					Name         => "Owner has been set to $Online{$OwnerID} by Auto Allocation",
-					HistoryType  => 'OwnerUpdate', # see system tables
+				my $UserObject = $Kernel::OM->Get('Kernel::System::User');
+                my $Name = $UserObject->UserName(
+                    UserID => $AllocationID,
+                );
+                
+                my $Success = $TicketObject->HistoryAdd(
+					Name         => "$HistoryName has been set to $Name by Auto Allocation",
+					HistoryType  => $HistoryType, # see system tables
 					TicketID     => $TicketID,
 					CreateUserID => 1,
 				);
