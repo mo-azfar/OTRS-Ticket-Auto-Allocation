@@ -9,24 +9,25 @@
 		
 1. .OPM will auto create 1 Generic Agent (owner assignment) to execute this module on ticket create. If not, create it manually.
 
-OWNER AUTO ASSIGNMENT 
+	OWNER AUTO ASSIGNMENT 
 
-- Name: ZZZTicket AutoAllocation
-- Event Based Execution  
-	-- Ticket::TicketCreate    
-- Select Tickets  
-	-- Ticket#: * 
-    -- State: new
-    -- Agent/Owner: Admin OTRS
-    -- Ticket unlock : unlock 
+	- Name: ZZZTicket AutoAllocation
+	- Event Based Execution  
+		-- Ticket::TicketCreate    
+
+	- Select Tickets  
+		-- Ticket#: * 
+		-- State: new
+		-- Agent/Owner: Admin OTRS
+		-- Ticket unlock : unlock 
   
-- Execute Custom Module  
-	-- Module
-    --- Kernel::System::GenericAgent::TicketAutoAllocation  
-    -- Param 1 key => value
-    --- Allocation => Owner
-    -- Param 2 key => value
-    --- Online => Yes
+	- Execute Custom Module  
+		-- Module
+			--- Kernel::System::GenericAgent::TicketAutoAllocation  
+		-- Param 1 key => value
+			--- Allocation => Owner
+		-- Param 2 key => value
+			--- Online => Yes
 
 
 Generic Agent Keys and Value
