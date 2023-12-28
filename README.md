@@ -38,4 +38,4 @@
   
 2. IMPORTANT!!  
 
-	If you are updating the addon, update the Generic Agent to match the structure above!.
+	**If you are updating the addon, update the Generic Agent to match the structure above!.**
