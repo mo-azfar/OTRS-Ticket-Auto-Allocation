@@ -32,8 +32,9 @@
 
 	
 	Additional Generic Agent Module Attribute:  
-			Allocation => (Owner|Resposible) #allocate ticket to owner or responsible  
-			Online => (Yes|No) #allocate ticket to online agent only or all agent.
+	
+		Allocation => (Owner|Resposible) #allocate ticket to owner or responsible  
+		Online => (Yes|No) #allocate ticket to online agent only or all agent.
 
   
 2. IMPORTANT!!  
