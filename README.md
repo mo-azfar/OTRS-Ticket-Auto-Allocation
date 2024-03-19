@@ -35,6 +35,9 @@
 	
 		Allocation => (Owner|Resposible) #allocate ticket to owner or responsible  
 		Online => (Yes|No) #allocate ticket to online agent only or all agent.
+		
+
+![generic agent custom module](doc/en/images/generic agent custom module.png)
 
   
 2. IMPORTANT!!  
