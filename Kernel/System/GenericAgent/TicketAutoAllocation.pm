@@ -45,17 +45,17 @@ sub Run {
     # check needed param
     # Allocation = Owner | Responsible
     # Online = Yes | No
-    for my $Needed ( qw( Allocation Online ) )
+	NEEDED:
+    for my $Needed (qw( Allocation Online)) 
 	{
-        if ( !$Param{New}->{$Needed} ) 
-        {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Need Parameter $Needed and its value for this operation!",
+        next NEEDED if defined $Param{New}->{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need Parameter $Needed and its value for this operation!",
             );
-            return;
-        }
-	}
+        return;
+    }
 	
 	my $TicketID = $Param{TicketID};  
 	my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
